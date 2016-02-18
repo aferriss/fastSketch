@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxTablet.h"
 
 class ofApp : public ofBaseApp{
 
@@ -20,10 +21,21 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-    
+        void tabletMoved(TabletData &data);
         vector<vector<ofPolyline> > scenes;
         vector<ofPolyline> lines;
         ofPolyline p;
         bool start;
         bool lift;
+    
+        ofMatrix4x4 tabmtx;
+    
+        ofPolyline tabletLine;
+    
+    int winX, winY, screenX, screenY, w, h, tabX, tabY, count;
+    float press;
+    
+    string filename;
+    vector<ofVec3f> points;
+    bool clear;
 };

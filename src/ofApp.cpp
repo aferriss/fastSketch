@@ -2,12 +2,31 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetWindowShape(720,720);
+    w = 720;
+    h = w;
+    winX = ofGetWindowPositionX();
+    winY = ofGetWindowPositionY();
+    screenX = ofGetScreenWidth();
+    screenY = ofGetScreenHeight();
+    
+    ofSetWindowShape(w,h);
     start = false;
     lift = false;
     
     ofSetLineWidth(5);
-    ofEnableSmoothing();
+    
+    tabmtx = ofMatrix4x4::newIdentityMatrix();
+    ofxTablet::start();
+    ofAddListener(ofxTablet::tabletEvent, this, &ofApp::tabletMoved);
+    
+    //    ofSetColor(255);
+//    ofDrawRectangle(0,0,ofGetWidth(), ofGetHeight());
+    ofSetBackgroundAuto(false);
+    
+    count = 0;
+    
+    filename = "scene_"+ofToString(count)+"_"+ofGetTimestampString() + ".txt";
+    clear = true;
 }
 
 //--------------------------------------------------------------
@@ -17,9 +36,11 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    ofSetColor(255);
-    ofDrawRectangle(0,0,ofGetWidth(), ofGetHeight());
+    if(ofGetFrameNum()<10 || clear){
+        ofSetColor(255);
+        ofDrawRectangle(0,0,ofGetWidth(), ofGetHeight());
+        clear = false;
+    }
     
     ofSetColor(0);
     if(ofGetFrameNum()%10 == 0 && scenes.size()>0 && scenes[scenes.size()-1].size() > 0 ){
@@ -34,6 +55,28 @@ void ofApp::draw(){
             scenes[scenes.size()-1][i].draw();
         }
     }
+    
+    
+    if(press > 1){
+        points.push_back(ofVec3f(tabX, tabY, press));
+        ofDrawCircle(tabX, tabY, press );
+    }
+    
+}
+//--------------------------------------------------------------
+void ofApp::tabletMoved(TabletData &data) {
+    
+    tabX = ofMap(data.abs_screen[0], 0,1, -winX, -winX+screenX );
+    tabY = ofMap(1.0 - data.abs_screen[1], 0,1, -winY, -winY+screenY)-48; // 48 = top bar *2?
+    press = (ofMap(data.pressure, 0,1, 1, 20));
+    
+    if(data.pressure>0){
+        
+        tabletLine.curveTo(ofPoint( tabX, tabY ));
+        
+    }
+    
+    cout<<ofToString(data.pressure)<<endl;
     
     
 }
@@ -61,6 +104,21 @@ void ofApp::exit(){
 }
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if(key == ' '){
+        count++;
+        filename = "scene_"+ofToString(count)+"_"+ofGetTimestampString();
+        
+        ofFile tabFile = ofFile(filename + ".txt", ofFile::WriteOnly);
+        for(int i = 0; i<points.size(); i++){
+            tabFile << ofToString(points[i]) + "\n";
+        }
+        ofImage pix;
+        pix.grabScreen(0, 0, w, h);
+        ofSaveImage(pix.getPixels(), filename + ".jpg");
+        points.clear();
+        clear = true;
+    }
+    
     if(key == 's'){
         vector<ofPolyline> lineSet;
         ofPolyline newLine;
