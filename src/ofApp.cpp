@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    w = 720;
+    w = 360;
     h = w;
     winX = ofGetWindowPositionX();
     winY = ofGetWindowPositionY();
@@ -23,7 +23,7 @@ void ofApp::setup(){
 //    ofDrawRectangle(0,0,ofGetWidth(), ofGetHeight());
     ofSetBackgroundAuto(false);
     
-    count = 0;
+    count = 1001;
     
     filename = "scene_"+ofToString(count)+"_"+ofGetTimestampString() + ".txt";
     clear = true;
@@ -65,10 +65,14 @@ void ofApp::draw(){
 }
 //--------------------------------------------------------------
 void ofApp::tabletMoved(TabletData &data) {
+    winX = ofGetWindowPositionX();
+    winY = ofGetWindowPositionY();
+    screenX = ofGetScreenWidth();
+    screenY = ofGetScreenHeight();
     
     tabX = ofMap(data.abs_screen[0], 0,1, -winX, -winX+screenX );
-    tabY = ofMap(1.0 - data.abs_screen[1], 0,1, -winY, -winY+screenY)-48; // 48 = top bar *2?
-    press = (ofMap(data.pressure, 0,1, 1, 20));
+    tabY = ofMap(1.0 - data.abs_screen[1], 0,1, -winY, -winY+screenY); // 48 = top bar *2?
+    press = (ofMap(data.pressure, 0,1, 1, 10));
     
     if(data.pressure>0){
         
@@ -118,7 +122,7 @@ void ofApp::keyPressed(int key){
         points.clear();
         clear = true;
     }
-    
+    /*
     if(key == 's'){
         vector<ofPolyline> lineSet;
         ofPolyline newLine;
@@ -167,6 +171,7 @@ void ofApp::keyPressed(int key){
             }
         
     }
+     */
 }
 
 //--------------------------------------------------------------
